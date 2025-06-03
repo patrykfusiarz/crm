@@ -3,13 +3,15 @@ const API_CONFIG = {
   // Automatically detect environment
   BASE_URL: import.meta.env.PROD 
     ? 'https://pretty-youthfulness-production.up.railway.app'  // Your Railway URL
-    : 'http://localhost:5000',  // Local development - FIXED PORT
+    : 'http://localhost:5000',  // Local development
     
   // API endpoints
   ENDPOINTS: {
     LOGIN: '/api/auth/login',
     LOGOUT: '/api/auth/logout',
     VERIFY: '/api/auth/verify',
+    PROFILE: '/api/account/profile',
+    PASSWORD: '/api/account/password',
     CLIENTS: '/api/clients',
     TASKS: '/api/tasks',
     USERS: '/api/users'

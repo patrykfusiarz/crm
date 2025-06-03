@@ -1,23 +1,17 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Home from './pages/Home';
+import Account from './pages/Account';
 
 function App() {
   return (
     <Router>
       <div className="App">
         <Routes>
-          {/* Default route redirects to login */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          
-          {/* Login page */}
           <Route path="/login" element={<Login />} />
-          
-          {/* Home page (protected) */}
           <Route path="/home" element={<Home />} />
-          
-          {/* Catch all other routes and redirect to login */}
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/" element={<Navigate to="/home" replace />} />
         </Routes>
       </div>
     </Router>
