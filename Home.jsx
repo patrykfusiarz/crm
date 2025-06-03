@@ -83,10 +83,10 @@ export default function Home() {
 
   return (
     <div className="h-full flex flex-col max-w-[2000px] mx-auto px-6 lg:px-17">
-      {/* Two Column Layout - 70/30 split */}
-      <div className="grid grid-cols-10 gap-6 h-full">
-        {/* Left Column - Chart (7/10 = 70%) */}
-        <div className="col-span-7">
+      {/* Two Column Layout */}
+      <div className="flex gap-6 h-full">
+        {/* Left Column - Chart (60%) */}
+        <div className="flex-none w-[60%]">
           <div className="bg-white rounded-lg border border-gray-200 p-6 h-full flex flex-col">
             {/* Chart Header with Toggle Buttons */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
@@ -217,15 +217,29 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Right Column - Empty Sidebar (3/10 = 30%) */}
-        <div className="col-span-3">
+        {/* Right Column - Sidebar (40%) */}
+        <div className="flex-none w-[40%]">
           <div className="bg-white rounded-lg border border-gray-200 p-6 h-full flex flex-col">
             <h2 className="text-lg font-semibold text-gray-900 mb-6">
               Dashboard Overview
             </h2>
             
-            {/* Empty sidebar - ready for future features */}
-            <div className="flex-1">
+            {/* Placeholder content for the right column */}
+            <div className="flex-1 flex flex-col space-y-4">
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Quick Stats</h3>
+                <p className="text-xs text-gray-500">This space is ready for KPI cards, recent activity, or other dashboard widgets.</p>
+              </div>
+              
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Recent Activity</h3>
+                <p className="text-xs text-gray-500">Activity feed or notifications could go here.</p>
+              </div>
+              
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Quick Actions</h3>
+                <p className="text-xs text-gray-500">Shortcuts to common tasks could be placed here.</p>
+              </div>
             </div>
           </div>
         </div>
