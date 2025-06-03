@@ -177,7 +177,7 @@ export default function Clients() {
  };
 
  return (
-   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-17">
      {/* Messages */}
      {message && (
        <div className="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
@@ -275,8 +275,8 @@ export default function Clients() {
 
      {/* Add Deal Modal */}
      {showModal && (
-       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-         <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+         <div className="relative mx-auto p-6 border max-w-md w-full shadow-lg rounded-lg bg-white my-8">
            <div className="mt-3">
              <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Deal</h3>
              

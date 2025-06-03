@@ -23,7 +23,7 @@ app.use('/api/account', accountRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/clients', clientsRoutes);
 app.use("/api/staging", require("./routes/staging"));
-
+app.use("/api/dashboard", require("./routes/dashboard"));
 // Health check endpoint
 app.get('/health', (req, res) => {
   console.log('✅ Health endpoint hit');
