@@ -68,7 +68,7 @@ export default function LiveView() {
       )}
 
       {/* Live View Table */}
-      <div className="bg-white shadow overflow-hidden sm:rounded-md">
+      <div className="bg-white shadow overflow-hidden sm:rounded-md w-full">
         <div className="px-4 py-5 sm:px-6">
           <h3 className="text-lg leading-6 font-medium text-gray-900">
             Live Activity Feed
@@ -85,7 +85,7 @@ export default function LiveView() {
             No deals in progress. Create "In Progress" deals to see them here!
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto"><table className="w-full min-w-full divide-y divide-gray-200">
             <table className="min-max-w-[2000px] mx-auto divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
