@@ -279,7 +279,7 @@ export default function Clients() {
          className="fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex items-center justify-center p-4"
          style={{width: "100vw", height: "100vh"}}
        >
-         <div className="relative mx-auto p-8 border max-w-4xl w-full shadow-lg rounded-lg bg-white">
+         <div className="relative mx-auto p-8 border max-w-2xl w-full shadow-lg rounded-lg bg-white">
            <div className="mt-3">
              <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Deal</h3>
              

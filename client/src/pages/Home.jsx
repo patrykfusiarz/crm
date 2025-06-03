@@ -221,7 +221,6 @@ export default function Home() {
         <div className="col-span-3">
           <div className="bg-white rounded-lg border border-gray-200 p-6 h-full flex flex-col">
             <h2 className="text-lg font-semibold text-gray-900 mb-6">
-              Dashboard Overview
             </h2>
             
             {/* Empty sidebar - ready for future features */}
