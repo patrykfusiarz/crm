@@ -177,7 +177,7 @@ export default function Clients() {
  };
 
  return (
-   <div className="max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-17">
+   <div className="max-w-[2000px] mx-auto px-6 lg:px-17">
      {/* Messages */}
      {message && (
        <div className="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
@@ -214,7 +214,7 @@ export default function Clients() {
          </div>
        ) : (
          <div className="overflow-x-auto">
-           <table className="min-max-w-[2000px] mx-auto divide-y divide-gray-200">
+           <table className="min-w-full divide-y divide-gray-200">
              <thead className="bg-gray-50">
                <tr>
                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -273,10 +273,13 @@ export default function Clients() {
        )}
      </div>
 
-     {/* Add Deal Modal */}
+     {/* Add Deal Modal - Fixed for ultrawide */}
      {showModal && (
-       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full max-w-[2000px] mx-auto z-50 flex items-center justify-center p-4">
-         <div className="relative mx-auto p-6 border max-w-md max-w-[2000px] mx-auto shadow-lg rounded-lg bg-white my-8">
+       <div 
+         className="fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex items-center justify-center p-4"
+         style={{width: "100vw", height: "100vh"}}
+       >
+         <div className="relative mx-auto p-8 border max-w-4xl w-full shadow-lg rounded-lg bg-white">
            <div className="mt-3">
              <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Deal</h3>
              
@@ -292,18 +295,18 @@ export default function Clients() {
                    value={searchTerm}
                    onChange={handleSearchChange}
                    placeholder="Type client name (existing or new)"
-                   className="mt-1 block max-w-[2000px] mx-auto px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                  />
                  
                  {/* Autocomplete Dropdown */}
                  {showDropdown && filteredClients.length > 0 && (
-                   <div className="absolute z-10 max-w-[2000px] mx-auto mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto">
+                   <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto">
                      {filteredClients.map((client) => (
                        <button
                          key={client.id}
                          type="button"
                          onClick={() => handleClientSelect(client)}
-                         className="max-w-[2000px] mx-auto text-left px-3 py-2 hover:bg-gray-100 focus:bg-gray-100 border-b border-gray-100 last:border-b-0"
+                         className="w-full text-left px-3 py-2 hover:bg-gray-100 focus:bg-gray-100 border-b border-gray-100 last:border-b-0"
                        >
                          <div className="font-medium text-gray-900">{client.name}</div>
                          {client.company && (
@@ -368,7 +371,7 @@ export default function Clients() {
                    type="email"
                    value={formData.clientEmail}
                    onChange={(e) => setFormData({...formData, clientEmail: e.target.value})}
-                   className="mt-1 block max-w-[2000px] mx-auto px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                  />
                </div>
 
@@ -379,7 +382,7 @@ export default function Clients() {
                    type="tel"
                    value={formData.clientPhone}
                    onChange={(e) => setFormData({...formData, clientPhone: e.target.value})}
-                   className="mt-1 block max-w-[2000px] mx-auto px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                  />
                </div>
 
@@ -394,7 +397,7 @@ export default function Clients() {
                    value={formData.dealTitle}
                    onChange={(e) => setFormData({...formData, dealTitle: e.target.value})}
                    placeholder="e.g., Website Redesign, Q1 Marketing Campaign"
-                   className="mt-1 block max-w-[2000px] mx-auto px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                  />
                </div>
 
@@ -405,7 +408,7 @@ export default function Clients() {
                    rows="3"
                    value={formData.dealNotes}
                    onChange={(e) => setFormData({...formData, dealNotes: e.target.value})}
-                   className="mt-1 block max-w-[2000px] mx-auto px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                  />
                </div>
 
