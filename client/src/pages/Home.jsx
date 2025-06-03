@@ -47,13 +47,26 @@ export default function Home() {
     }
   };
 
-  const formatTooltip = (value, name, props) => {
-    if (timeframe === 'current_month') {
-      const currentDate = new Date();
-      const monthName = currentDate.toLocaleString('default', { month: 'long' });
-      return [`${value} deals`, `${monthName} ${props.payload.period}`];
+  // Custom tooltip component
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      const value = payload[0].value;
+      if (timeframe === 'current_month') {
+        const currentDate = new Date();
+        const monthName = currentDate.toLocaleString('default', { month: 'long' });
+        return (
+          <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-lg">
+            <p className="text-gray-700">{`${monthName} ${label} : ${value} deals`}</p>
+          </div>
+        );
+      }
+      return (
+        <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-lg">
+          <p className="text-gray-700">{`${value} deals`}</p>
+        </div>
+      );
     }
-    return [`${value} deals`, 'Completed Deals'];
+    return null;
   };
 
   // Get the last day of current month
@@ -140,16 +153,7 @@ export default function Home() {
                       </linearGradient>
                     </defs>
                     <YAxis domain={[0, 25]} hide />
-                    <Tooltip 
-                      contentStyle={{
-                        backgroundColor: '#ffffff',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '8px',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                      }}
-                      labelStyle={{ color: '#374151' }}
-                      formatter={formatTooltip}
-                    />
+                    <Tooltip content={<CustomTooltip />} />
                     <Area
                       type="monotone"
                       dataKey="deals"
