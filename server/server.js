@@ -24,7 +24,7 @@ app.use(morgan('combined'));
 app.use(cookieParser());
 app.use(express.json());
 
-// CORS configuration for both environments
+// CORS configuration
 app.use(cors({
   origin: NODE_ENV === 'production' ? true : FRONTEND_URL,
   credentials: true,
@@ -34,22 +34,37 @@ app.use(cors({
 
 // Health check endpoint (required by Railway)
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK', environment: NODE_ENV });
-});
-
-// API Routes
-app.get('/api/test', (req, res) => {
-  res.json({ 
-    message: 'Server is running!', 
+  res.status(200).json({ 
+    status: 'OK', 
     environment: NODE_ENV,
     timestamp: new Date().toISOString()
   });
 });
 
-// Serve React app in production
+// API Routes - MUST come before static file serving
+app.get('/api/test', (req, res) => {
+  res.json({ 
+    message: 'CRM API is working!', 
+    environment: NODE_ENV,
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
+});
+
+// Temporary auth endpoints (we'll build these out)
+app.post('/api/auth/login', (req, res) => {
+  res.json({ message: 'Login endpoint working' });
+});
+
+app.post('/api/auth/logout', (req, res) => {
+  res.json({ message: 'Logout endpoint working' });
+});
+
+// Serve React app in production - MUST come after API routes
 if (NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/dist')));
   
+  // Catch-all handler for React Router - MUST be last
   app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/dist/index.html'));
   });
