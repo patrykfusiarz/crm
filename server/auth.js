@@ -1,7 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const { pool, usingDatabase, memoryUsers } = require('./database');
+const { getPool, usingDatabase, memoryUsers } = require('./database');
 const router = express.Router();
 
 // Generate JWT token
@@ -26,6 +26,13 @@ router.post('/login', async (req, res) => {
     console.log('Login attempt:', email);
 
     if (usingDatabase()) {
+      const pool = getPool();
+      
+      if (!pool) {
+        console.log('Database pool not available');
+        return res.status(500).json({ error: 'Database connection error' });
+      }
+
       // Database login
       const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
       

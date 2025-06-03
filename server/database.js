@@ -65,6 +65,7 @@ const initDatabase = async () => {
   } catch (error) {
     console.error('❌ Database connection failed:', error);
     usingDatabase = false;
+    pool = null;
   }
 };
 
@@ -94,8 +95,14 @@ const clearAllData = async () => {
   return false;
 };
 
+// Get database pool (with null check)
+const getPool = () => {
+  return pool;
+};
+
 module.exports = { 
-  pool, 
+  pool,
+  getPool,
   initDatabase, 
   usingDatabase: () => usingDatabase,
   memoryUsers,
