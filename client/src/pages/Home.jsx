@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { getApiUrl } from '../config/api';
+import { getApiUrl, getAuthHeaders } from '../config/api';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -19,6 +19,11 @@ export default function Home() {
       setUser(JSON.parse(userData));
     }
   }, [navigate]);
+
+  const handleAddDeal = () => {
+    // Navigate to clients page where the modal functionality exists
+    navigate('/clients', { state: { openModal: true } });
+  };
 
   const handleLogout = async () => {
     try {
@@ -56,6 +61,12 @@ export default function Home() {
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-700">Welcome, {user.email}</span>
               <button
+                onClick={handleAddDeal}
+                className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Add Deal
+              </button>
+              <button
                 onClick={() => navigate('/account')}
                 className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-sm font-medium"
               >
@@ -75,7 +86,10 @@ export default function Home() {
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white overflow-hidden shadow rounded-lg">
+            <button
+              onClick={() => navigate('/clients')}
+              className="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+            >
               <div className="p-5">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
@@ -89,13 +103,13 @@ export default function Home() {
                         Clients
                       </dt>
                       <dd className="text-lg font-medium text-gray-900">
-                        Coming Soon
+                        Manage Clients
                       </dd>
                     </dl>
                   </div>
                 </div>
               </div>
-            </div>
+            </button>
 
             <div className="bg-white overflow-hidden shadow rounded-lg">
               <div className="p-5">
