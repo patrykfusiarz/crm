@@ -157,7 +157,7 @@ export default function Layout({ children, title = "CRM Dashboard" }) {
       <div className="flex-1 flex flex-col min-w-0 ml-64">
         {/* Top navbar - Always visible */}
         <header className="bg-white border-b border-gray-200 fixed top-0 right-0 left-64 z-40">
-          <div className="flex items-center h-16 px-6 lg:px-17">
+          <div className="max-w-screen-xl mx-auto flex items-center h-16 px-6 lg:px-17">
             <div className="flex-1">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

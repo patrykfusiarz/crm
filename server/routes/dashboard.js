@@ -41,47 +41,52 @@ router.get('/deals-data/:timeframe', verifyToken, async (req, res) => {
           break;
 
         case 'last_3_months':
-          // Get monthly totals for last 3 months
-          const threeMonthsAgo = new Date(currentDate.getFullYear(), currentDate.getMonth() - 2, 1);
+          // Always return exactly 3 months with 0s if no data
+          const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          data = [];
           
-          const monthlyResult = await pool.query(`
-            SELECT 
-              TO_CHAR(created_at, 'Mon') as month,
-              COUNT(*) as deals
-            FROM deals
-            WHERE created_by = $1 
-              AND status = 'completed'
-              AND created_at >= $2
-            GROUP BY EXTRACT(MONTH FROM created_at), TO_CHAR(created_at, 'Mon')
-            ORDER BY EXTRACT(MONTH FROM created_at)
-          `, [req.userId, threeMonthsAgo]);
-
-          data = monthlyResult.rows.map(row => ({
-            period: row.month,
-            deals: parseInt(row.deals)
-          }));
+          for (let i = 2; i >= 0; i--) {
+            const monthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+            const monthName = monthNames[monthDate.getMonth()];
+            
+            const monthResult = await pool.query(`
+              SELECT COALESCE(COUNT(*), 0) as deals
+              FROM deals
+              WHERE created_by = $1 
+                AND status = 'completed'
+                AND EXTRACT(MONTH FROM created_at) = $2
+                AND EXTRACT(YEAR FROM created_at) = $3
+            `, [req.userId, monthDate.getMonth() + 1, monthDate.getFullYear()]);
+            
+            data.push({
+              period: monthName,
+              deals: parseInt(monthResult.rows[0].deals)
+            });
+          }
           break;
 
         case 'year_to_date':
-          // Get monthly totals from January to current month
-          const startOfYear = new Date(currentDate.getFullYear(), 0, 1);
+          // Always return Jan to current month with 0s if no data
+          const ytdMonthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          data = [];
           
-          const ytdResult = await pool.query(`
-            SELECT 
-              TO_CHAR(created_at, 'Mon') as month,
-              COUNT(*) as deals
-            FROM deals
-            WHERE created_by = $1 
-              AND status = 'completed'
-              AND created_at >= $2
-            GROUP BY EXTRACT(MONTH FROM created_at), TO_CHAR(created_at, 'Mon')
-            ORDER BY EXTRACT(MONTH FROM created_at)
-          `, [req.userId, startOfYear]);
-
-          data = ytdResult.rows.map(row => ({
-            period: row.month,
-            deals: parseInt(row.deals)
-          }));
+          for (let i = 0; i <= currentDate.getMonth(); i++) {
+            const monthName = ytdMonthNames[i];
+            
+            const monthResult = await pool.query(`
+              SELECT COALESCE(COUNT(*), 0) as deals
+              FROM deals
+              WHERE created_by = $1 
+                AND status = 'completed'
+                AND EXTRACT(MONTH FROM created_at) = $2
+                AND EXTRACT(YEAR FROM created_at) = $3
+            `, [req.userId, i + 1, currentDate.getFullYear()]);
+            
+            data.push({
+              period: monthName,
+              deals: parseInt(monthResult.rows[0].deals)
+            });
+          }
           break;
       }
     } else {
@@ -109,8 +114,8 @@ router.get('/deals-data/:timeframe', verifyToken, async (req, res) => {
           break;
 
         case 'last_3_months':
-          // Real data for last 3 months
-          const last3Months = [];
+          // Always return exactly 3 months
+          data = [];
           for (let i = 2; i >= 0; i--) {
             const monthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
             const monthName = monthNames[monthDate.getMonth()];
@@ -119,14 +124,13 @@ router.get('/deals-data/:timeframe', verifyToken, async (req, res) => {
               return dealDate.getMonth() === monthDate.getMonth() && 
                      dealDate.getFullYear() === monthDate.getFullYear();
             }).length;
-            last3Months.push({ period: monthName, deals: dealsInMonth });
+            data.push({ period: monthName, deals: dealsInMonth });
           }
-          data = last3Months;
           break;
 
         case 'year_to_date':
-          // Real data for year to date
-          const ytdData = [];
+          // Always return Jan to current month
+          data = [];
           for (let i = 0; i <= currentDate.getMonth(); i++) {
             const monthName = monthNames[i];
             const dealsInMonth = userDeals.filter(deal => {
@@ -134,9 +138,8 @@ router.get('/deals-data/:timeframe', verifyToken, async (req, res) => {
               return dealDate.getMonth() === i && 
                      dealDate.getFullYear() === currentDate.getFullYear();
             }).length;
-            ytdData.push({ period: monthName, deals: dealsInMonth });
+            data.push({ period: monthName, deals: dealsInMonth });
           }
-          data = ytdData;
           break;
       }
     }
