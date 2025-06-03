@@ -1,11 +1,16 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const { initDatabase } = require('./database');
 const authRoutes = require('./auth');
 const accountRoutes = require('./routes/account');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Initialize database
+initDatabase();
 
 // Middleware
 app.use(cors());
@@ -14,6 +19,7 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/account', accountRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
