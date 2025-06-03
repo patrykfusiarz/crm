@@ -1,11 +1,9 @@
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { getApiUrl, getAuthHeaders } from '../config/api';
 
 export default function Clients() {
-  const navigate = useNavigate();
   const location = useLocation();
-  const [user, setUser] = useState(null);
   const [clients, setClients] = useState([]);
   const [clientsList, setClientsList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -32,28 +30,14 @@ export default function Clients() {
   });
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-    
-    if (!token) {
-      navigate('/login');
-      return;
-    }
-    
-    if (userData) {
-      setUser(JSON.parse(userData));
-    }
-    
     fetchClients();
     fetchClientsList();
 
     // Auto-open modal if navigated from homepage "Add Deal" button
     if (location.state?.openModal) {
       setShowModal(true);
-      // Clear the state to prevent reopening on refresh
-      navigate('/clients', { replace: true });
     }
-  }, [navigate, location]);
+  }, [location]);
 
   // Filter clients based on search term
   useEffect(() => {
@@ -134,7 +118,7 @@ export default function Clients() {
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
-    setSelectedClient(null); // Clear selected client when typing
+    setSelectedClient(null);
   };
 
   const handleClientSelect = (client) => {
@@ -142,7 +126,6 @@ export default function Clients() {
     setSearchTerm(client.name);
     setShowDropdown(false);
     
-    // Pre-fill client details if available
     setFormData(prev => ({
       ...prev,
       clientEmail: client.email || '',
@@ -156,7 +139,6 @@ export default function Clients() {
     setSaving(true);
     setError('');
 
-    // Prepare the data based on whether existing client is selected
     const submitData = {
       clientId: selectedClient ? selectedClient.id : null,
       clientName: selectedClient ? selectedClient.name : searchTerm,
@@ -180,8 +162,8 @@ export default function Clients() {
 
       if (response.ok) {
         setMessage(`Deal added successfully ${selectedClient ? 'for existing client' : 'with new client'}!`);
-        await fetchClients(); // Refresh the table
-        await fetchClientsList(); // Refresh the client list
+        await fetchClients();
+        await fetchClientsList();
         handleCloseModal();
       } else {
         setError(data.error || 'Failed to add deal');
@@ -194,163 +176,102 @@ export default function Clients() {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (token) {
-        await fetch(getApiUrl('/api/auth/logout'), {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-      }
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      navigate('/login');
-    }
-  };
-
-  if (!user) {
-    return <div>Loading...</div>;
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate('/home')}
-                className="text-indigo-600 hover:text-indigo-800 font-medium"
-              >
-                ← Back to Dashboard
-              </button>
-              <h1 className="text-xl font-semibold text-gray-900">Clients & Deals</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">Welcome, {user?.email}</span>
-              <button
-                onClick={handleAddDeal}
-                className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Add Deal
-              </button>
-              <button
-                onClick={() => navigate('/account')}
-                className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Account
-              </button>
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Messages */}
+      {message && (
+        <div className="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+          {message}
         </div>
-      </nav>
-
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          {/* Messages */}
-          {message && (
-            <div className="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-              {message}
-            </div>
-          )}
-          {error && (
-            <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-              {error}
-            </div>
-          )}
-
-          {/* Clients Table */}
-          <div className="bg-white shadow overflow-hidden sm:rounded-md">
-            <div className="px-4 py-5 sm:px-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
-                Clients Overview
-              </h3>
-              <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                Manage your clients and their deals
-              </p>
-            </div>
-            
-            {loading ? (
-              <div className="p-6 text-center">Loading clients...</div>
-            ) : clients.length === 0 ? (
-              <div className="p-6 text-center text-gray-500">
-                No clients yet. Click "Add Deal" to get started!
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Client
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Company
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Contact
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Deals
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Total Value
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Last Activity
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {clients.map((client) => (
-                      <tr key={client.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {client.name}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {client.company || '-'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <div>
-                            {client.email && <div>{client.email}</div>}
-                            {client.phone && <div>{client.phone}</div>}
-                            {!client.email && !client.phone && '-'}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                            {client.deal_count || 0} deal{(client.deal_count || 0) !== 1 ? 's' : ''}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {client.total_value ? `$${parseFloat(client.total_value).toLocaleString()}` : '$0'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {client.last_deal_date ? new Date(client.last_deal_date).toLocaleDateString() : 
-                           new Date(client.created_at).toLocaleDateString()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+      )}
+      {error && (
+        <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          {error}
         </div>
-      </main>
+      )}
+
+      {/* Action bar */}
+      <div className="mb-6 flex justify-between items-center">
+        <div>
+          <h2 className="text-lg font-medium text-gray-900">Clients Overview</h2>
+          <p className="text-sm text-gray-500">Manage your clients and their deals</p>
+        </div>
+        <button
+          onClick={handleAddDeal}
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+        >
+          Add Deal
+        </button>
+      </div>
+
+      {/* Clients Table */}
+      <div className="bg-white shadow overflow-hidden sm:rounded-md">
+        {loading ? (
+          <div className="p-6 text-center">Loading clients...</div>
+        ) : clients.length === 0 ? (
+          <div className="p-6 text-center text-gray-500">
+            No clients yet. Click "Add Deal" to get started!
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Client
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Company
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Contact
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Deals
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Total Value
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Last Activity
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {clients.map((client) => (
+                  <tr key={client.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {client.name}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {client.company || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <div>
+                        {client.email && <div>{client.email}</div>}
+                        {client.phone && <div>{client.phone}</div>}
+                        {!client.email && !client.phone && '-'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                        {client.deal_count || 0} deal{(client.deal_count || 0) !== 1 ? 's' : ''}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {client.total_value ? `$${parseFloat(client.total_value).toLocaleString()}` : '$0'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {client.last_deal_date ? new Date(client.last_deal_date).toLocaleDateString() : 
+                       new Date(client.created_at).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       {/* Add Deal Modal */}
       {showModal && (
@@ -409,11 +330,9 @@ export default function Clients() {
                   )}
                 </div>
 
-                {/* Client Details (editable for both new and existing) */}
+                {/* Client Details */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Company
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700">Company</label>
                   <input
                     type="text"
                     value={formData.clientCompany}
@@ -423,9 +342,7 @@ export default function Clients() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Email
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700">Email</label>
                   <input
                     type="email"
                     value={formData.clientEmail}
@@ -435,9 +352,7 @@ export default function Clients() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Phone
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700">Phone</label>
                   <input
                     type="tel"
                     value={formData.clientPhone}
@@ -446,13 +361,11 @@ export default function Clients() {
                   />
                 </div>
 
-                {/* Deal Fields */}
                 <hr className="my-4" />
                 
+                {/* Deal Fields */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Deal Title *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700">Deal Title *</label>
                   <input
                     type="text"
                     required
@@ -464,9 +377,7 @@ export default function Clients() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Deal Value
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700">Deal Value</label>
                   <input
                     type="number"
                     step="0.01"
@@ -477,9 +388,7 @@ export default function Clients() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Status
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700">Status</label>
                   <select
                     value={formData.dealStatus}
                     onChange={(e) => setFormData({...formData, dealStatus: e.target.value})}
@@ -492,9 +401,7 @@ export default function Clients() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Notes
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700">Notes</label>
                   <textarea
                     rows="3"
                     value={formData.dealNotes}
