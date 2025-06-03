@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { initDatabase } = require('./database');
-const authRoutes = require('./auth');
+const { router: authRoutes } = require('./auth');
 const accountRoutes = require('./routes/account');
 const adminRoutes = require('./routes/admin');
 const clientsRoutes = require('./routes/clients');
@@ -22,6 +22,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/account', accountRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/clients', clientsRoutes);
+app.use("/api/staging", require("./routes/staging"));
 
 // Health check endpoint
 app.get('/health', (req, res) => {

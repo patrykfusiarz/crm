@@ -17,6 +17,7 @@ let memoryUsers = [
 
 let memoryClients = [];
 let memoryDeals = [];
+let memoryStagingDeals = []; // New staging deals storage
 
 // Initialize database connection
 const initDatabase = async () => {
@@ -74,6 +75,23 @@ const initDatabase = async () => {
         )
       `);
 
+      // Create staging_deals table (for in-progress deals)
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS staging_deals (
+          id SERIAL PRIMARY KEY,
+          client_name VARCHAR(255) NOT NULL,
+          client_email VARCHAR(255),
+          client_phone VARCHAR(255),
+          client_company VARCHAR(255),
+          deal_title VARCHAR(255) NOT NULL,
+          deal_notes TEXT,
+          status VARCHAR(50) DEFAULT 'in_progress',
+          created_by INTEGER REFERENCES users(id),
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+
       console.log('✅ PostgreSQL database connected (Production)');
     } else {
       console.log('📝 Using in-memory storage (Local Development)');
@@ -91,6 +109,7 @@ const clearAllData = async () => {
   if (usingDatabase && pool) {
     try {
       await pool.query('TRUNCATE TABLE deals RESTART IDENTITY CASCADE');
+      await pool.query('TRUNCATE TABLE staging_deals RESTART IDENTITY CASCADE');
       await pool.query('TRUNCATE TABLE clients RESTART IDENTITY CASCADE');
       await pool.query('TRUNCATE TABLE users RESTART IDENTITY CASCADE');
       console.log('🗑️ All data cleared from database');
@@ -103,6 +122,7 @@ const clearAllData = async () => {
     // Clear in-memory storage
     memoryClients.length = 0;
     memoryDeals.length = 0;
+    memoryStagingDeals.length = 0;
     console.log('🗑️ In-memory data cleared');
     return true;
   }
@@ -121,5 +141,6 @@ module.exports = {
   memoryUsers,
   memoryClients,
   memoryDeals,
+  memoryStagingDeals,
   clearAllData
 };

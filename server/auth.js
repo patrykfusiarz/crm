@@ -19,6 +19,25 @@ const generateToken = (user) => {
   );
 };
 
+// Verify JWT token middleware
+const verifyToken = (req, res, next) => {
+  const token = req.header('Authorization')?.replace('Bearer ', '');
+  
+  if (!token) {
+    return res.status(401).json({ error: 'No token provided' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+    req.userId = decoded.id;
+    req.user = decoded;
+    next();
+  } catch (error) {
+    console.error('Token verification failed:', error);
+    res.status(401).json({ error: 'Invalid token' });
+  }
+};
+
 // Login endpoint
 router.post('/login', async (req, res) => {
   try {
@@ -117,4 +136,5 @@ router.post('/logout', (req, res) => {
   res.json({ message: 'Logout successful' });
 });
 
-module.exports = router;
+// Export both the router and the verifyToken middleware
+module.exports = { router, verifyToken };
