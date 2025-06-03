@@ -7,10 +7,9 @@
     "server:dev": "cd server && npm run dev",
     "client:dev": "cd client && npm run dev",
     "open:browser": "sleep 3 && open -a 'Google Chrome' http://localhost:5173",
-    "build": "npm run install:all && cd client && npm run build && cd ../server && npm run build",
+    "build": "cd server && npm install && cd ../client && npm install && npm run build && cd ../server && npm run build",
     "start": "cd server && npm start",
-    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
-    "postinstall": "npm run install:all"
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
