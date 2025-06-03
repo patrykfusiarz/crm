@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { getPool, usingDatabase, memoryUsers } = require('../database');
 const router = express.Router();
 
 // Middleware to verify JWT token
@@ -22,19 +23,46 @@ const authenticateToken = (req, res, next) => {
 };
 
 // Get user profile
-router.get('/profile', authenticateToken, (req, res) => {
+router.get('/profile', authenticateToken, async (req, res) => {
   try {
-    // In a real app, you'd fetch from database
-    // For now, return the user data from the token
-    const user = {
-      id: req.user.id,
-      email: req.user.email,
-      username: req.user.username || 'admin',
-      firstName: req.user.firstName || 'John',
-      lastName: req.user.lastName || 'Doe'
-    };
-    
-    res.json({ user });
+    if (usingDatabase()) {
+      const pool = getPool();
+      if (!pool) {
+        return res.status(500).json({ error: 'Database connection error' });
+      }
+
+      const result = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
+      
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const user = result.rows[0];
+      res.json({
+        user: {
+          id: user.id,
+          email: user.email,
+          username: user.username,
+          firstName: user.first_name,
+          lastName: user.last_name
+        }
+      });
+    } else {
+      const user = memoryUsers.find(u => u.id == req.user.id);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      res.json({
+        user: {
+          id: user.id,
+          email: user.email,
+          username: user.username,
+          firstName: user.first_name,
+          lastName: user.last_name
+        }
+      });
+    }
   } catch (error) {
     console.error('Profile fetch error:', error);
     res.status(500).json({ error: 'Failed to fetch profile' });
@@ -46,32 +74,57 @@ router.put('/profile', authenticateToken, async (req, res) => {
   try {
     const { firstName, lastName, email, username } = req.body;
     
-    // Validate required fields
     if (!firstName || !lastName || !email || !username) {
       return res.status(400).json({ error: 'All fields are required' });
     }
-    
-    // In a real app, you'd update the database here
-    // For now, we'll simulate a successful update
-    const updatedUser = {
-      id: req.user.id,
-      email,
-      username,
-      firstName,
-      lastName
-    };
-    
-    // Generate new token with updated info
-    const newToken = jwt.sign(updatedUser, process.env.JWT_SECRET || 'your-secret-key', {
-      expiresIn: '24h'
-    });
-    
-    console.log(`Profile updated for user: ${email}`);
-    res.json({ 
-      message: 'Profile updated successfully', 
-      user: updatedUser,
-      token: newToken
-    });
+
+    if (usingDatabase()) {
+      const pool = getPool();
+      if (!pool) {
+        return res.status(500).json({ error: 'Database connection error' });
+      }
+
+      const emailCheck = await pool.query('SELECT id FROM users WHERE email = $1 AND id != $2', [email, req.user.id]);
+      if (emailCheck.rows.length > 0) {
+        return res.status(400).json({ error: 'Email already in use' });
+      }
+
+      const result = await pool.query(`
+        UPDATE users 
+        SET email = $1, username = $2, first_name = $3, last_name = $4, updated_at = CURRENT_TIMESTAMP
+        WHERE id = $5
+        RETURNING *
+      `, [email, username, firstName, lastName, req.user.id]);
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const updatedUser = result.rows[0];
+      
+      const newToken = jwt.sign({
+        id: updatedUser.id,
+        email: updatedUser.email,
+        username: updatedUser.username,
+        firstName: updatedUser.first_name,
+        lastName: updatedUser.last_name
+      }, process.env.JWT_SECRET || 'your-secret-key', {
+        expiresIn: '24h'
+      });
+      
+      console.log(`Profile updated for user: ${email}`);
+      res.json({ 
+        message: 'Profile updated successfully', 
+        user: {
+          id: updatedUser.id,
+          email: updatedUser.email,
+          username: updatedUser.username,
+          firstName: updatedUser.first_name,
+          lastName: updatedUser.last_name
+        },
+        token: newToken
+      });
+    }
   } catch (error) {
     console.error('Profile update error:', error);
     res.status(500).json({ error: 'Failed to update profile' });
@@ -83,7 +136,6 @@ router.put('/password', authenticateToken, async (req, res) => {
   try {
     const { currentPassword, newPassword, confirmPassword } = req.body;
     
-    // Validate input
     if (!currentPassword || !newPassword || !confirmPassword) {
       return res.status(400).json({ error: 'All password fields are required' });
     }
@@ -95,19 +147,37 @@ router.put('/password', authenticateToken, async (req, res) => {
     if (newPassword.length < 6) {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
-    
-    // In a real app, you'd verify current password against database
-    // For demo purposes, we'll accept any current password
-    if (currentPassword !== 'password123') {
-      return res.status(400).json({ error: 'Current password is incorrect' });
+
+    if (usingDatabase()) {
+      const pool = getPool();
+      if (!pool) {
+        return res.status(500).json({ error: 'Database connection error' });
+      }
+
+      const result = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const user = result.rows[0];
+      
+      console.log('Password change - checking current password...');
+      const isValidPassword = await bcrypt.compare(currentPassword, user.password);
+      console.log('Current password valid:', isValidPassword);
+      
+      if (!isValidPassword) {
+        return res.status(400).json({ error: 'Current password is incorrect' });
+      }
+      
+      console.log('Hashing new password...');
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      console.log('New password hashed, updating database...');
+      
+      await pool.query('UPDATE users SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2', [hashedPassword, req.user.id]);
+      
+      console.log(`Password changed for user: ${user.email}`);
+      res.json({ message: 'Password updated successfully' });
     }
-    
-    // Hash new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    
-    // In a real app, you'd update the password in the database
-    console.log(`Password changed for user: ${req.user.email}`);
-    res.json({ message: 'Password updated successfully' });
   } catch (error) {
     console.error('Password change error:', error);
     res.status(500).json({ error: 'Failed to change password' });
