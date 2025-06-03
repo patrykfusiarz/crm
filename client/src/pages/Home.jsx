@@ -82,7 +82,7 @@ export default function Home() {
   };
 
   return (
-    <div className="h-full flex flex-col max-w-screen-xl mx-auto px-6 lg:px-17">
+    <div className="h-full flex flex-col max-w-[2000px] mx-auto px-6 lg:px-17">
       {/* Chart Section */}
       <div className="bg-white rounded-lg border border-gray-200 p-6 flex-1 flex flex-col">
         {/* Chart Header with Toggle Buttons */}

@@ -54,7 +54,7 @@ export default function LiveView() {
   };
 
   return (
-    <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-17">
+    <div className="max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-17">
       {/* Messages */}
       {message && (
         <div className="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
@@ -86,7 +86,7 @@ export default function LiveView() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-max-w-screen-xl mx-auto divide-y divide-gray-200">
+            <table className="min-max-w-[2000px] mx-auto divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
