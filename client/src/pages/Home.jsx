@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { ComposedChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { getApiUrl, getAuthHeaders } from '../config/api';
 
 export default function Home() {
@@ -47,31 +47,6 @@ export default function Home() {
     }
   };
 
-  const getChartTitle = () => {
-    switch(timeframe) {
-      case 'current_month': return 'Current Month Deals';
-      case 'last_3_months': return 'Last 3 Months Deals';
-      case 'year_to_date': return 'Year to Date Deals';
-      default: return 'Deals Overview';
-    }
-  };
-
-  const getXAxisTicks = () => {
-    if (timeframe === 'current_month' && data.length > 0) {
-      const maxDay = Math.max(...data.map(d => parseInt(d.period)));
-      const ticks = [1, 7, 14, 21];
-      
-      // Add 28 if month is long enough
-      if (maxDay >= 28) ticks.push(28);
-      
-      // Add final day of month
-      if (maxDay > 28) ticks.push(maxDay);
-      
-      return ticks;
-    }
-    return undefined; // Let Recharts handle other timeframes automatically
-  };
-
   const formatTooltip = (value, name, props) => {
     if (timeframe === 'current_month') {
       const currentDate = new Date();
@@ -81,57 +56,62 @@ export default function Home() {
     return [`${value} deals`, 'Completed Deals'];
   };
 
+  // Get the last day of current month
+  const getLastDayOfMonth = () => {
+    return new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+  };
+
   return (
     <div className="h-full flex flex-col max-w-[2000px] mx-auto px-6 lg:px-17">
       {/* Two Column Layout - 70/30 split */}
       <div className="grid grid-cols-10 gap-6 h-full">
         {/* Left Column - Chart (7/10 = 70%) */}
         <div className="col-span-7">
-          <div className="bg-white rounded-lg border border-gray-200 p-6 h-full flex flex-col">
+          <div className="bg-white rounded-lg border border-gray-200 p-0 h-full flex flex-col">
             {/* Chart Header with Toggle Buttons */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4 sm:mb-0">
-                {getChartTitle()}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 p-6 pb-0">
+              <h2 className="text-4xl font-normal text-gray-900 mb-4 sm:mb-0">
+                {data.length > 0 ? data[data.length - 1].deals : 0} Deals
               </h2>
               
               {/* Time Frame Toggle Buttons */}
               <div className="flex rounded-lg bg-gray-100 p-1">
                 <button
                   onClick={() => setTimeframe('current_month')}
-                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
                     timeframe === 'current_month'
                       ? 'bg-white text-indigo-700 shadow-sm'
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
-                  Current Month
+                  Month
                 </button>
                 <button
                   onClick={() => setTimeframe('last_3_months')}
-                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
                     timeframe === 'last_3_months'
                       ? 'bg-white text-indigo-700 shadow-sm'
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
-                  Last 3 Months
+                  90 Days
                 </button>
                 <button
                   onClick={() => setTimeframe('year_to_date')}
-                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
                     timeframe === 'year_to_date'
                       ? 'bg-white text-indigo-700 shadow-sm'
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
-                  Year to Date
+                  YTD
                 </button>
               </div>
             </div>
 
             {/* Error Message */}
             {error && (
-              <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+              <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mx-6">
                 {error}
               </div>
             )}
@@ -144,31 +124,22 @@ export default function Home() {
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%" key={chartKey}>
-                  <LineChart
+                  <ComposedChart
                     data={data}
                     margin={{
-                      top: 20,
-                      right: 30,
-                      left: 20,
-                      bottom: 20,
+                      top: 0,
+                      right: 0,
+                      left: 0,
+                      bottom: 0,
                     }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis 
-                      dataKey="period" 
-                      stroke="#6b7280"
-                      fontSize={12}
-                      tickLine={false}
-                      axisLine={false}
-                      ticks={getXAxisTicks()}
-                    />
-                    <YAxis 
-                      stroke="#6b7280"
-                      fontSize={12}
-                      tickLine={false}
-                      axisLine={false}
-                      tickFormatter={(value) => `${value}`}
-                    />
+                    <defs>
+                      <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#60a5fa" stopOpacity={0.6} />
+                        <stop offset="100%" stopColor="#60a5fa" stopOpacity={0.1} />
+                      </linearGradient>
+                    </defs>
+                    <YAxis domain={[0, 25]} hide />
                     <Tooltip 
                       contentStyle={{
                         backgroundColor: '#ffffff',
@@ -179,39 +150,56 @@ export default function Home() {
                       labelStyle={{ color: '#374151' }}
                       formatter={formatTooltip}
                     />
+                    <Area
+                      type="monotone"
+                      dataKey="deals"
+                      stroke="none"
+                      fill="url(#chartGradient)"
+                    />
                     <Line
                       type="monotone" connectNulls={false}
                       dataKey="deals"
-                      stroke="#4f46e5"
+                      stroke="#60a5fa"
                       strokeWidth={3}
-                      dot={{
-                        fill: '#4f46e5',
-                        strokeWidth: 2,
-                        r: 6
-                      }}
+                      dot={false}
                       activeDot={{
                         r: 8,
-                        fill: '#4f46e5',
+                        fill: '#60a5fa',
                         strokeWidth: 2,
                         stroke: '#ffffff'
                       }}
                     />
-                  </LineChart>
+                  </ComposedChart>
                 </ResponsiveContainer>
               )}
             </div>
 
-            {/* Chart Footer with Summary */}
-            <div className="mt-6 pt-4 border-t border-gray-200">
-              <div className="flex justify-between items-center text-sm text-gray-600">
-                <span>
-                  Total deals in selected period: <span className="font-semibold text-gray-900">
-                    {data.reduce((sum, item) => sum + item.deals, 0)}
-                  </span>
-                </span>
-                <span>
-                  Last updated: {new Date().toLocaleDateString()}
-                </span>
+            {/* Bottom container with custom X-axis */}
+            <div className="bg-white p-4 border-t border-gray-200 rounded-b-lg">
+              <div className="flex justify-between text-xs text-gray-500">
+                {timeframe === 'current_month' && (
+                  <>
+                    <span>1</span>
+                    <span>7</span>
+                    <span>14</span>
+                    <span>21</span>
+                    <span>{getLastDayOfMonth()}</span>
+                  </>
+                )}
+                {timeframe === 'last_3_months' && (
+                  <>
+                    <span>Mar</span>
+                    <span>Apr</span>
+                    <span>May</span>
+                  </>
+                )}
+                {timeframe === 'year_to_date' && 
+                  ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                    .slice(0, new Date().getMonth() + 1)
+                    .map((month) => (
+                      <span key={month}>{month}</span>
+                    ))
+                }
               </div>
             </div>
           </div>
@@ -220,9 +208,6 @@ export default function Home() {
         {/* Right Column - Empty Sidebar (3/10 = 30%) */}
         <div className="col-span-3">
           <div className="bg-white rounded-lg border border-gray-200 p-6 h-full flex flex-col">
-            <h2 className="text-lg font-semibold text-gray-900 mb-6">
-            </h2>
-            
             {/* Empty sidebar - ready for future features */}
             <div className="flex-1">
             </div>

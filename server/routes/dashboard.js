@@ -15,28 +15,35 @@ router.get('/deals-data/:timeframe', verifyToken, async (req, res) => {
 
       switch (timeframe) {
         case 'current_month':
-          // Get daily deal counts for current month
+          // Get CUMULATIVE daily deal counts for current month
           const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
           const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
           
           const dailyResult = await pool.query(`
             WITH date_series AS (
               SELECT generate_series($1::date, $2::date, '1 day'::interval) AS day
+            ),
+            daily_counts AS (
+              SELECT 
+                date_series.day,
+                COALESCE(COUNT(deals.id), 0) as daily_deals
+              FROM date_series
+              LEFT JOIN deals ON DATE(deals.created_at) = DATE(date_series.day)
+                AND deals.created_by = $3 
+                AND deals.status = 'completed'
+              GROUP BY date_series.day
+              ORDER BY date_series.day
             )
             SELECT 
-              EXTRACT(DAY FROM date_series.day) as day,
-              COALESCE(COUNT(deals.id), 0) as deals
-            FROM date_series
-            LEFT JOIN deals ON DATE(deals.created_at) = DATE(date_series.day)
-              AND deals.created_by = $3 
-              AND deals.status = 'completed'
-            GROUP BY date_series.day
-            ORDER BY date_series.day
+              EXTRACT(DAY FROM day) as day,
+              SUM(daily_deals) OVER (ORDER BY day ROWS UNBOUNDED PRECEDING) as cumulative_deals
+            FROM daily_counts
+            ORDER BY day
           `, [startOfMonth, endOfMonth, req.userId]);
 
           data = dailyResult.rows.map(row => ({
             period: row.day.toString(),
-            deals: parseInt(row.deals)
+            deals: parseInt(row.cumulative_deals)
           }));
           break;
 
@@ -99,8 +106,10 @@ router.get('/deals-data/:timeframe', verifyToken, async (req, res) => {
 
       switch (timeframe) {
         case 'current_month':
-          // Real data for current month - count actual deals by day
+          // CUMULATIVE data for current month
           const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+          let cumulativeCount = 0;
+          
           data = Array.from({length: daysInMonth}, (_, i) => {
             const day = i + 1;
             const dealsOnDay = userDeals.filter(deal => {
@@ -109,7 +118,9 @@ router.get('/deals-data/:timeframe', verifyToken, async (req, res) => {
                      dealDate.getMonth() === currentDate.getMonth() && 
                      dealDate.getFullYear() === currentDate.getFullYear();
             }).length;
-            return { period: day.toString(), deals: dealsOnDay };
+            
+            cumulativeCount += dealsOnDay;
+            return { period: day.toString(), deals: cumulativeCount };
           });
           break;
 
