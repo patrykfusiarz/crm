@@ -163,3 +163,35 @@ router.get('/deals-data/:timeframe', verifyToken, async (req, res) => {
 });
 
 module.exports = router;
+
+// Debug endpoint to check deal timestamps
+router.get('/debug-deals', verifyToken, async (req, res) => {
+  try {
+    if (usingDatabase()) {
+      const pool = getPool();
+      const result = await pool.query(`
+        SELECT 
+          id, 
+          title, 
+          created_at,
+          DATE(created_at) as deal_date,
+          EXTRACT(DAY FROM created_at) as day_of_month
+        FROM deals 
+        WHERE created_by = $1 
+        AND status = 'completed'
+        ORDER BY created_at DESC
+        LIMIT 10
+      `, [req.userId]);
+      
+      res.json({ 
+        deals: result.rows,
+        server_time: new Date(),
+        server_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      });
+    } else {
+      res.json({ message: 'Using in-memory storage' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
