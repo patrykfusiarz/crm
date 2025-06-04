@@ -51,6 +51,8 @@ export default function Home() {
 // Force rebuild - tooltip fix
   // Custom tooltip component
   const CustomTooltip = ({ active, payload, label }) => {
+    console.log("Tooltip debug - label:", label, "payload:", payload);
+
     if (active && payload && payload.length) {
       const value = payload[0].value;
       if (timeframe === 'current_month') {
