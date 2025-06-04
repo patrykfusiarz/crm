@@ -76,7 +76,7 @@ router.get('/list', verifyToken, async (req, res) => {
   }
 });
 
-// Create deal - route based on status (updated to match frontend form)
+// Create deal - route based on status (updated to make dealNotes optional)
 router.post('/deals', verifyToken, async (req, res) => {
   try {
     const {
@@ -86,7 +86,7 @@ router.post('/deals', verifyToken, async (req, res) => {
       clientPhone,
       dealTitle,
       dealStatus,
-      dealNotes
+      dealNotes = '' // Default to empty string if not provided
     } = req.body;
 
     if (!clientName || !dealTitle) {

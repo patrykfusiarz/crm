@@ -26,7 +26,7 @@ export default function Clients() {
    dealTitle: '',
    dealValue: '',
    dealStatus: 'in_progress',
-   dealNotes: ''
+   
  });
 
  useEffect(() => {
@@ -52,6 +52,20 @@ export default function Clients() {
      setShowDropdown(false);
    }
  }, [searchTerm, clientsList]);
+
+ // Prevent body scroll when modal is open
+ useEffect(() => {
+   if (showModal) {
+     document.body.style.overflow = 'hidden';
+   } else {
+     document.body.style.overflow = 'unset';
+   }
+   
+   // Cleanup on unmount
+   return () => {
+     document.body.style.overflow = 'unset';
+   };
+ }, [showModal]);
 
  const fetchClients = async () => {
    try {
@@ -111,7 +125,7 @@ export default function Clients() {
      dealTitle: '',
      dealValue: '',
      dealStatus: 'in_progress',
-     dealNotes: ''
+     
    });
  };
 
@@ -273,15 +287,15 @@ export default function Clients() {
        )}
      </div>
 
-     {/* Add Deal Modal - Fixed for ultrawide */}
+     {/* Add Deal Modal */}
      {showModal && (
        <div 
-         className="fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex items-center justify-center p-4"
+         className="fixed inset-0 backdrop-blur-sm z-50 flex items-center justify-center p-4"
          style={{width: "100vw", height: "100vh"}}
        >
-         <div className="relative mx-auto p-8 border max-w-2xl w-full shadow-lg rounded-lg bg-white">
+         <div className="relative mx-auto p-8 border border-gray-300 max-w-xl w-full shadow-lg rounded-lg bg-white">
            <div className="mt-3">
-             <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Deal</h3>
+             <h3 className="text-xl font-medium text-gray-900 mb-4">Add New Deal</h3>
              
              <form onSubmit={handleSubmit} className="space-y-4">
                {/* Client Search */}
@@ -295,7 +309,7 @@ export default function Clients() {
                    value={searchTerm}
                    onChange={handleSearchChange}
                    placeholder="Type client name (existing or new)"
-                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                  />
                  
                  {/* Autocomplete Dropdown */}
@@ -338,14 +352,14 @@ export default function Clients() {
                  <label className="block text-sm font-medium text-gray-700 mb-2">
                    Deal Status
                  </label>
-                 <div className="flex rounded-md shadow-sm">
+                 <div className="flex items-center rounded-lg border border-gray-300 bg-gray-100 w-full p-1">
                    <button
                      type="button"
                      onClick={() => setFormData({...formData, dealStatus: 'in_progress'})}
-                     className={`flex-1 px-4 py-2 text-sm font-medium border rounded-l-md focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                     className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none ${
                        formData.dealStatus === 'in_progress'
-                         ? 'bg-indigo-600 text-white border-indigo-600'
-                         : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                         ? 'bg-white text-gray-700 shadow-sm'
+                         : 'bg-transparent text-gray-600 hover:text-gray-700'
                      }`}
                    >
                      In Progress
@@ -353,10 +367,10 @@ export default function Clients() {
                    <button
                      type="button"
                      onClick={() => setFormData({...formData, dealStatus: 'completed'})}
-                     className={`flex-1 px-4 py-2 text-sm font-medium border-t border-r border-b rounded-r-md focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                     className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none ${
                        formData.dealStatus === 'completed'
-                         ? 'bg-green-600 text-white border-green-600'
-                         : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                         ? 'bg-white text-gray-700 shadow-sm'
+                         : 'bg-transparent text-gray-600 hover:text-gray-700'
                      }`}
                    >
                      Completed
@@ -371,7 +385,7 @@ export default function Clients() {
                    type="email"
                    value={formData.clientEmail}
                    onChange={(e) => setFormData({...formData, clientEmail: e.target.value})}
-                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                  />
                </div>
 
@@ -382,12 +396,10 @@ export default function Clients() {
                    type="tel"
                    value={formData.clientPhone}
                    onChange={(e) => setFormData({...formData, clientPhone: e.target.value})}
-                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                  />
                </div>
 
-               <hr className="my-4" />
-               
                {/* Deal Title */}
                <div>
                  <label className="block text-sm font-medium text-gray-700">Deal Title *</label>
@@ -397,18 +409,7 @@ export default function Clients() {
                    value={formData.dealTitle}
                    onChange={(e) => setFormData({...formData, dealTitle: e.target.value})}
                    placeholder="e.g., Website Redesign, Q1 Marketing Campaign"
-                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                 />
-               </div>
-
-               {/* Notes */}
-               <div>
-                 <label className="block text-sm font-medium text-gray-700">Notes</label>
-                 <textarea
-                   rows="3"
-                   value={formData.dealNotes}
-                   onChange={(e) => setFormData({...formData, dealNotes: e.target.value})}
-                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                  />
                </div>
 
@@ -416,14 +417,14 @@ export default function Clients() {
                  <button
                    type="button"
                    onClick={handleCloseModal}
-                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+                   className="px-8 py-3 text-sm font-medium text-gray-700 bg-gray-200 rounded-full hover:bg-gray-300"
                  >
                    Cancel
                  </button>
                  <button
                    type="submit"
                    disabled={saving}
-                   className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50"
+                   className="px-16 py-3 text-sm font-medium text-white bg-blue-400 rounded-full hover:bg-blue-500 disabled:opacity-50"
                  >
                    {saving ? 'Adding...' : 'Add Deal'}
                  </button>
