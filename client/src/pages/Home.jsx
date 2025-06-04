@@ -48,6 +48,7 @@ export default function Home() {
     }
   };
 
+// Force rebuild - tooltip fix
   // Custom tooltip component
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
