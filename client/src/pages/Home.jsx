@@ -35,8 +35,8 @@ export default function Home() {
 
       if (response.ok) {
         const result = await response.json();
-        setData(result.data);
         console.log("Chart data received:", result.data);
+        setData(result.data);
       } else {
         setError('Failed to load dashboard data');
       }
@@ -48,6 +48,27 @@ export default function Home() {
     }
   };
 
+  // Custom tooltip component
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      const value = payload[0].value;
+      if (timeframe === 'current_month') {
+        const currentDate = new Date();
+        const monthName = currentDate.toLocaleString('default', { month: 'long' });
+        return (
+          <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-lg">
+            <p className="text-gray-700">{`${monthName} ${label}: ${value} deals`}</p>
+          </div>
+        );
+      }
+      return (
+        <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-lg">
+          <p className="text-gray-700">{`${value} deals`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
 
   // Get the last day of current month
   const getLastDayOfMonth = () => {
