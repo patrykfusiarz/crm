@@ -24,7 +24,6 @@ const authenticateToken = (req, res, next) => {
 
 // Get user profile
 router.get('/profile', authenticateToken, async (req, res) => {
-  console.log('🔍 GET /profile route hit for user:', req.user.id);
   try {
     if (usingDatabase()) {
       const pool = getPool();
@@ -72,19 +71,14 @@ router.get('/profile', authenticateToken, async (req, res) => {
 
 // Update user profile
 router.put('/profile', authenticateToken, async (req, res) => {
-  console.log('🔄 PUT /profile route hit for user:', req.user.id);
-  console.log('📦 Request body:', req.body);
-  
   try {
     const { firstName, lastName, email, username } = req.body;
     
     if (!firstName || !lastName || !email || !username) {
-      console.log('❌ Missing required fields');
       return res.status(400).json({ error: 'All fields are required' });
     }
 
     if (usingDatabase()) {
-      console.log('🗄️ Using database...');
       const pool = getPool();
       if (!pool) {
         return res.status(500).json({ error: 'Database connection error' });
@@ -118,7 +112,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
         expiresIn: '24h'
       });
       
-      console.log(`✅ Profile updated for user: ${email}`);
+      console.log(`Profile updated for user: ${email}`);
       res.json({ 
         message: 'Profile updated successfully', 
         user: {
@@ -131,10 +125,9 @@ router.put('/profile', authenticateToken, async (req, res) => {
         token: newToken
       });
     } else {
-      console.log('💾 Using in-memory storage...');
+      // In-memory storage
       const userIndex = memoryUsers.findIndex(u => u.id == req.user.id);
       if (userIndex === -1) {
-        console.log('❌ User not found in memory');
         return res.status(404).json({ error: 'User not found' });
       }
 
@@ -159,7 +152,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
         expiresIn: '24h'
       });
       
-      console.log(`✅ Profile updated in memory for user: ${email}`);
+      console.log(`Profile updated in memory for user: ${email}`);
       res.json({ 
         message: 'Profile updated successfully', 
         user: {
@@ -173,28 +166,18 @@ router.put('/profile', authenticateToken, async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('❌ Profile update error:', error);
+    console.error('Profile update error:', error);
     res.status(500).json({ error: 'Failed to update profile' });
   }
 });
 
-// Change password
+// Change password - SIMPLIFIED VERSION
 router.put('/password', authenticateToken, async (req, res) => {
-  console.log('🔐 PUT /password route hit for user:', req.user.id);
-  
   try {
     const { currentPassword, newPassword, confirmPassword } = req.body;
     
     if (!currentPassword || !newPassword || !confirmPassword) {
       return res.status(400).json({ error: 'All password fields are required' });
-    }
-    
-    if (newPassword !== confirmPassword) {
-      return res.status(400).json({ error: 'New passwords do not match' });
-    }
-    
-    if (newPassword.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
     if (usingDatabase()) {
@@ -210,17 +193,13 @@ router.put('/password', authenticateToken, async (req, res) => {
 
       const user = result.rows[0];
       
-      console.log('Password change - checking current password...');
       const isValidPassword = await bcrypt.compare(currentPassword, user.password);
-      console.log('Current password valid:', isValidPassword);
       
       if (!isValidPassword) {
         return res.status(400).json({ error: 'Current password is incorrect' });
       }
       
-      console.log('Hashing new password...');
       const hashedPassword = await bcrypt.hash(newPassword, 10);
-      console.log('New password hashed, updating database...');
       
       await pool.query('UPDATE users SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2', [hashedPassword, req.user.id]);
       
@@ -235,7 +214,7 @@ router.put('/password', authenticateToken, async (req, res) => {
 
       // For in-memory, just update the password (simplified)
       memoryUsers[userIndex].password = newPassword;
-      console.log('✅ Password updated in memory');
+      console.log('Password updated in memory');
       res.json({ message: 'Password updated successfully' });
     }
   } catch (error) {

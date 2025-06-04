@@ -23,11 +23,10 @@ export default function Account() {
     username: ''
   });
 
-  // Password form state (keeping your existing structure)
+  // Password form state (simplified - no confirm password)
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
+    newPassword: ''
   });
 
   // Fetch user profile on component mount (keeping your existing function)
@@ -118,24 +117,23 @@ export default function Account() {
     }
   };
 
-  // Keep your existing handlePasswordSubmit function
+  // Simplified password submit (no confirm password validation)
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     setError('');
     setMessage('');
 
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setError('New passwords do not match');
-      setSaving(false);
-      return;
-    }
-
     try {
+      // Send with dummy confirmPassword to match backend expectation
       const response = await fetch(getApiUrl('/api/account/password'), {
         method: 'PUT',
         headers: getAuthHeaders(),
-        body: JSON.stringify(passwordForm)
+        body: JSON.stringify({
+          currentPassword: passwordForm.currentPassword,
+          newPassword: passwordForm.newPassword,
+          confirmPassword: passwordForm.newPassword // Same as newPassword
+        })
       });
 
       const data = await response.json();
@@ -144,8 +142,7 @@ export default function Account() {
         setMessage('Password updated successfully!');
         setPasswordForm({
           currentPassword: '',
-          newPassword: '',
-          confirmPassword: ''
+          newPassword: ''
         });
         setShowPasswordModal(false);
         
@@ -435,7 +432,7 @@ export default function Account() {
         </div>
       </div>
 
-      {/* Password Change Modal */}
+      {/* Password Change Modal - SIMPLIFIED */}
       {showPasswordModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
@@ -468,19 +465,6 @@ export default function Account() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Confirm New Password
-                </label>
-                <input
-                  type="password"
-                  required
-                  value={passwordForm.confirmPassword}
-                  onChange={(e) => setPasswordForm({...passwordForm, confirmPassword: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
               <div className="flex justify-end space-x-3 pt-4">
                 <button
                   type="button"
@@ -488,8 +472,7 @@ export default function Account() {
                     setShowPasswordModal(false);
                     setPasswordForm({
                       currentPassword: '',
-                      newPassword: '',
-                      confirmPassword: ''
+                      newPassword: ''
                     });
                   }}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
