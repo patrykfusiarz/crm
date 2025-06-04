@@ -83,7 +83,7 @@ export default function Home() {
       {/* Two Column Layout - 70/30 split */}
       <div className="grid grid-cols-10 gap-6 h-full">
         {/* Left Column - Chart (7/10 = 70%) */}
-        <div className="col-span-7">
+        <div className="col-span-10">
           <div className="bg-white rounded-lg border border-gray-200 p-0 h-full flex flex-col">
             {/* Chart Header with Toggle Buttons */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 p-6 pb-0">
@@ -214,14 +214,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Right Column - Empty Sidebar (3/10 = 30%) */}
-        <div className="col-span-3">
-          <div className="bg-white rounded-lg border border-gray-200 p-6 h-full flex flex-col">
-            {/* Empty sidebar - ready for future features */}
-            <div className="flex-1">
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
