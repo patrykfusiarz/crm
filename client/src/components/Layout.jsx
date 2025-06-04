@@ -50,14 +50,14 @@ export default function Layout({ children, title = "CRM Dashboard" }) {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-lg">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-white flex">
       {/* Sidebar - Always visible */}
       <div className="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200">
         {/* User section at top */}
