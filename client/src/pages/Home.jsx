@@ -156,6 +156,7 @@ export default function Home() {
                         <stop offset="100%" stopColor="#60a5fa" stopOpacity={0.1} />
                       </linearGradient>
                     </defs>
+                    <XAxis dataKey="period" hide />
                     <YAxis domain={[0, 25]} hide />
                     <Tooltip content={<CustomTooltip />} />
                     <Area
