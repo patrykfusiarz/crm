@@ -36,6 +36,7 @@ export default function Home() {
       if (response.ok) {
         const result = await response.json();
         setData(result.data);
+        console.log("Chart data received:", result.data);
       } else {
         setError('Failed to load dashboard data');
       }
