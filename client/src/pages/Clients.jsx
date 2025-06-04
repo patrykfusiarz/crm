@@ -210,12 +210,6 @@ export default function Clients() {
          <h2 className="text-lg font-medium text-gray-900">Clients Overview</h2>
          <p className="text-sm text-gray-500">Manage your clients and their deals</p>
        </div>
-       <button
-         onClick={handleAddDeal}
-         className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-       >
-         Add Deal
-       </button>
      </div>
 
      {/* Clients Table */}
