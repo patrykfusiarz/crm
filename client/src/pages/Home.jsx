@@ -81,7 +81,7 @@ export default function Home() {
  return (
    <div className="h-full flex flex-col max-w-[2000px] mx-auto px-6 lg:px-17">
      <div className="pt-[10px] pb-[18px]">
-       <h1 className="text-3xl font-medium text-gray-900">Welcome, {JSON.parse(localStorage.getItem("user") || "{}")?.firstName || "User"}</h1>
+       <h1 className="text-[28px] font-medium text-gray-900">Welcome, {JSON.parse(localStorage.getItem("user") || "{}")?.firstName || "User"}</h1>
      </div>
      
      {/* Quick Action Buttons */}
@@ -135,10 +135,18 @@ export default function Home() {
      <div className="flex-[65] mb-4">
        <div className="bg-white rounded-lg border border-gray-200 p-0 h-full flex flex-col shadow-lg shadow-gray-200/50">
          {/* Chart Header with Toggle Buttons */}
-         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 p-4 pb-0">
-           <h2 className="text-4xl font-normal text-gray-900 mb-2 sm:mb-0">
-             {data.length > 0 ? data[data.length - 1].deals : 0} Deals
-           </h2>
+         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 pt-8 pl-8 pr-4 pb-0">
+           <div>
+             <h2 className="text-5xl font-light text-gray-900 mb-3">
+               {data.length > 0 ? data[data.length - 1].deals : 0} Deals
+             </h2>
+             <div className="flex items-center text-base text-gray-600">
+               <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+               </svg>
+               +3 from last month
+             </div>
+           </div>
            
            {/* Time Frame Toggle Buttons */}
            <div className="flex rounded-lg bg-gray-100 p-1">
@@ -263,29 +271,27 @@ export default function Home() {
        </div>
      </div>
 
-     {/* Stats Container - 4 columns with 25% each */}
+     {/* Stats Container - 4 separate containers */}
      <div className="pb-4">
-       <div className="bg-white rounded-lg border border-gray-200 h-auto p-[36px] shadow-lg shadow-gray-200/50">
-         <div className="flex items-start">
-           <div className="flex-[25] pl-6">
-             <div className="text-[48px] font-medium leading-none -mt-2 pb-3 text-gray-900">2</div>
-             <div className="text-base font-medium text-gray-500 leading-none">Overdue</div>
-           </div>
-           <div className="border-r border-gray-300 mx-6 h-16"></div>
-           <div className="flex-[25] pl-6">
-             <div className="text-[48px] font-medium leading-none -mt-2 pb-3 text-gray-900">9</div>
-             <div className="text-base font-medium text-gray-500 leading-none">Due in next 7 days</div>
-           </div>
-           <div className="border-r border-gray-300 mx-6 h-16"></div>
-           <div className="flex-[25] pl-6">
-             <div className="text-[48px] font-medium leading-none -mt-2 pb-3 text-gray-900">20</div>
-             <div className="text-base font-medium text-gray-500 leading-none">Days left in May</div>
-           </div>
-           <div className="border-r border-gray-300 mx-6 h-16"></div>
-           <div className="flex-[25] pl-6">
-             <div className="text-[48px] font-medium leading-none -mt-2 pb-3 text-gray-900">15</div>
-             <div className="text-base font-medium text-gray-500 leading-none">New this month</div>
-           </div>
+       <div className="grid grid-cols-4 gap-4">
+         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-lg shadow-gray-200/50">
+           <div className="text-[42px] font-medium leading-none -mt-2 pb-3 text-gray-900">2</div>
+           <div className="text-base font-medium text-gray-500 leading-none">Overdue</div>
+         </div>
+         
+         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-lg shadow-gray-200/50">
+           <div className="text-[42px] font-medium leading-none -mt-2 pb-3 text-gray-900">9</div>
+           <div className="text-base font-medium text-gray-500 leading-none">Due in next 7 days</div>
+         </div>
+         
+         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-lg shadow-gray-200/50">
+           <div className="text-[42px] font-medium leading-none -mt-2 pb-3 text-gray-900">20</div>
+           <div className="text-base font-medium text-gray-500 leading-none">Days left in May</div>
+         </div>
+         
+         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-lg shadow-gray-200/50">
+           <div className="text-[42px] font-medium leading-none -mt-2 pb-3 text-gray-900">15</div>
+           <div className="text-base font-medium text-gray-500 leading-none">New this month</div>
          </div>
        </div>
      </div>

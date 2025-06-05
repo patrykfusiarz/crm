@@ -263,7 +263,7 @@ export default function Layout({ children, title = "CRM Dashboard" }) {
           
           <button
             onClick={handleAddDeal}
-            className="ml-4 bg-violet-600 hover:bg-violet-700 text-white px-8 py-2 rounded-full border border-violet-600 text-base font-medium cursor-pointer transition-colors"
+            className="ml-4 bg-purple-400 hover:bg-purple-500 text-white px-8 py-2 rounded-full border border-purple-400 text-base font-medium cursor-pointer transition-colors"
           >
             Add Deal
           </button>
