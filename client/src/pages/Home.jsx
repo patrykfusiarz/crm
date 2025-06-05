@@ -132,7 +132,7 @@ export default function Home() {
      </div>
      
      {/* Chart Container - 65% of remaining height */}
-     <div className="flex-[65] mb-8">
+     <div className="flex-[65] mb-4">
        <div className="bg-white rounded-lg border border-gray-200 p-0 h-full flex flex-col shadow-lg shadow-gray-200/50">
          {/* Chart Header with Toggle Buttons */}
          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 p-4 pb-0">
