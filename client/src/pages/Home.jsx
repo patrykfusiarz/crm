@@ -136,7 +136,7 @@ export default function Home() {
        <div className="bg-white rounded-lg border border-gray-200 p-0 h-full flex flex-col shadow-lg shadow-gray-200/50">
          {/* Chart Header with Toggle Buttons */}
          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 p-4 pb-0">
-           <h2 className="text-3xl font-normal text-gray-900 mb-2 sm:mb-0">
+           <h2 className="text-4xl font-normal text-gray-900 mb-2 sm:mb-0">
              {data.length > 0 ? data[data.length - 1].deals : 0} Deals
            </h2>
            
