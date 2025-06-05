@@ -271,7 +271,7 @@ export default function Layout({ children, title = "CRM Dashboard" }) {
       </header>
        
        {/* Page content */}
-       <main className="flex-1 py-6 pt-24">
+       <main className="flex-1 pb-8 pt-24">
          {children}
        </main>
      </div>
